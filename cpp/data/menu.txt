@@ -1,18 +1,18 @@
 # Smart Cafeteria Pre-Order System - Menu Database
 # Format: id|code|category(food/drink/combo)|name|price_kes|prep_time_mins|stock|description
-C01|C01|combo|THE CAMPUS LEGEND COMBO|150.00|3|45|2 Chapatis + Rich Ndengu + Hot Masala Chai
-C02|C02|combo|SWAHILI PILAU DELUXE|270.00|5|30|Beef Pilau + Tangy Kachumbari + Fresh Passion Juice
-C03|C03|combo|ENGINEERS POWER LUNCH|250.00|6|38|Ugali + Wet Fry Beef + Sukuma Wiki + 500ml Soda
-C04|C04|combo|DAWN PATROL BREAKFAST|140.00|2|50|2 Mandazi + 1 Beef Samosa + Hot Dawa Tea
-F01|F01|food|Swahili Beef Pilau|220.00|4|40|Fragrant spiced coastal rice with tender beef chunks
-F02|F02|food|Chapati (Pair) & Ndengu|130.00|3|60|Two flaky layered chapatis with coconut green grams
-F03|F03|food|Ugali Beef Stew & Greens|200.00|5|35|Stone-ground maize meal with slow-cooked beef
-F04|F04|food|Fried Lake Tilapia & Ugali|320.00|10|18|Crisp whole tilapia fish with tomato gravy
-F05|F05|food|Githeri Special & Avocado|110.00|3|25|Soft boiled maize & beans sauteed with onions
-F06|F06|food|Crispy Beef Samosas (Pair)|70.00|1|75|Golden triangular pastries with spiced minced beef
-F07|F07|food|Warm Mahamri Mandazi (Pair)|40.00|1|90|Cardamom Swahili sweet fried dough
-D01|D01|drink|Hot Spiced Masala Chai|45.00|2|120|Whole milk tea steeped with fresh ginger & cinnamon
-D02|D02|drink|Herbal Dawa Infusion|70.00|3|40|Boiled ginger root, crushed lemon juice & natural honey
-D03|D03|drink|Fresh Passion Juice|80.00|1|55|Freshly squeezed highland sweet passion fruit
-D04|D04|drink|Soft Drink Soda (500ml)|75.00|1|80|Chilled Coca-Cola, Fanta, Sprite, or Stoney
-D05|D05|drink|Bottled Spring Water (500ml)|50.00|1|100|Purified natural mineral spring water
+C01|C01|combo|THE CAMPUS LEGEND COMBO|150.00|3|45|2 Flaky Chapatis + Rich Ndengu + Hot Masala Spiced Chai
+C02|C02|combo|SWAHILI PILAU DELUXE|270.00|5|30|Fragrant Spiced Beef Pilau + Tangy Kachumbari + Fresh Passion Juice
+C03|C03|combo|ENGINEERS POWER LUNCH|250.00|6|38|Hearty Ugali + Sukuma Wiki + Wet Fry Beef + 500ml Cold Soda
+C04|C04|combo|DAWN PATROL BREAKFAST|140.00|2|50|2 Fluffy Cardamom Mandazi + 1 Beef Samosa + Steaming Dawa Tea
+F01|F01|food|Swahili Beef Pilau|220.00|4|40|Classic coastal spiced rice simmered with tender beef chunks
+F02|F02|food|Chapati (Pair) & Ndengu|130.00|3|60|Two pan-toasted layered chapatis with coconut-simmered green grams
+F03|F03|food|Ugali Beef Stew & Greens|200.00|5|35|Freshly made stone-ground white maize meal with slow-cooked beef
+F04|F04|food|Fried Lake Tilapia & Ugali|320.00|10|18|Crispy whole lakeside tilapia fish with tomato gravy & greens
+F05|F05|food|Githeri Special & Avocado|110.00|3|25|Boiled soft maize and red beans sauteed with onions & coriander
+F06|F06|food|Crispy Beef Samosas (Pair)|70.00|1|75|Golden triangular pastries loaded with spiced minced beef & leeks
+F07|F07|food|Warm Mahamri Mandazi (Pair)|40.00|1|90|Deep-fried sweet Swahili dough infused with fresh crushed cardamom
+D01|D01|drink|Hot Spiced Masala Chai|45.00|2|120|Whole milk brewed tea steeped with fresh ginger and cinnamon bark
+D02|D02|drink|Herbal Dawa Infusion|70.00|3|40|Boiled ginger root, crushed lemon juice & natural forest honey
+D03|D03|drink|Fresh Passion Juice|80.00|1|55|Freshly squeezed sweet highland passion fruit, served ice-cold
+D04|D04|drink|Soft Drink Soda (500ml)|75.00|1|80|Chilled bottle: Coca-Cola, Fanta Orange, Sprite or Stoney
+D05|D05|drink|Bottled Spring Water (500ml)|50.00|1|100|Purified natural spring mineral water (500ml)

@@ -10,6 +10,7 @@
 #include "User.h"
 #include "MenuItem.h"
 #include "Order.h"
+#include "PdfReceiptGenerator.h"
 
 class DataManager {
 private:
@@ -135,16 +136,23 @@ public:
         return true;
     }
 
-    // 4. Save downloadable individual receipt file in receipts/
+    // 4. Save downloadable individual receipt file in receipts/ (PDF & TXT)
     bool saveReceiptFile(const Order& order) {
         std::string dir = dataDir + "/receipts";
-        std::string filePath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
-        std::ofstream file(filePath);
-        if (!file.is_open()) {
+        std::string pdfPath = dir + "/receipt_" + order.getTransactionCode() + ".pdf";
+        std::string txtPath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
+
+        // Generate authentic 80mm PDF receipt
+        bool pdfOk = PdfReceiptGenerator::generatePdf(order, pdfPath);
+        if (!pdfOk) {
             dir = "cpp/data/receipts";
-            filePath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
-            file.open(filePath);
+            pdfPath = dir + "/receipt_" + order.getTransactionCode() + ".pdf";
+            txtPath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
+            PdfReceiptGenerator::generatePdf(order, pdfPath);
         }
+
+        // Also generate text receipt for legacy terminal viewer
+        std::ofstream file(txtPath);
         if (!file.is_open()) return false;
 
         const std::string sep = "------------------------------------------\n";

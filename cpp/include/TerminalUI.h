@@ -110,12 +110,17 @@ public:
             std::string name = item->getName();
             if (name.length() > 34) name = name.substr(0, 32) + "..";
 
-            std::cout << " [" << item->getCode() << "] "
-                      << std::left << std::setw(36) << name << " "
+            std::cout << " [" << theme.highlightCode() << item->getCode() << theme.fgCode() << "] "
+                      << theme.bold() << std::left << std::setw(34) << name << theme.reset() << theme.fgCode() << " "
                       << "~" << item->getEffectivePrepTime() << "m   "
                       << std::right << std::setw(4) << item->getStock() << "   "
                       << "KES " << std::right << std::setw(6) << std::fixed << std::setprecision(2) << item->calculateFinalPrice()
                       << "\n";
+
+            // Full descriptive details for combos, meals, snacks and drinks (matching web app)
+            if (!item->getDescription().empty()) {
+                std::cout << theme.dimCode() << "       └─ " << item->getDescription() << theme.reset() << theme.fgCode() << "\n";
+            }
         }
 
         std::cout << "------------------------------------------------------------------------------\n";
@@ -172,9 +177,10 @@ public:
             std::this_thread::sleep_for(std::chrono::milliseconds(120)); // Stepped paper feed delay
         }
 
-        std::cout << "\n" << theme.fgCode() << ">> CUTTER BLADE ENGAGED: RECEIPT DETACHED!\n";
-        std::cout << ">> File saved to: cpp/data/receipts/receipt_" << order.getTransactionCode() << ".txt\n";
-        std::cout << ">> Immutable log appended to: cpp/data/orders.txt\n\n";
+        std::cout << "\n" << theme.highlightCode() << ">> CUTTER BLADE ENGAGED: THERMAL RECEIPT DETACHED!\n" << theme.fgCode();
+        std::cout << ">> PDF Receipt generated: " << theme.highlightCode() << "cpp/data/receipts/receipt_" << order.getTransactionCode() << ".pdf\n" << theme.fgCode();
+        std::cout << ">> Text voucher saved:    cpp/data/receipts/receipt_" << order.getTransactionCode() << ".txt\n";
+        std::cout << ">> Immutable log appended: cpp/data/orders.txt\n\n";
         std::cout << "Press ENTER to return to menu...";
         std::cin.ignore();
         std::cin.get();
@@ -238,6 +244,7 @@ public:
             }
 
             if (found) {
+                std::cout << theme.dimCode() << "   └─ Includes: " << found->getDescription() << theme.reset() << theme.fgCode() << "\n";
                 std::cout << "Enter Quantity for " << found->getName() << ": ";
                 int qty;
                 std::cin >> qty;
