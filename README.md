@@ -1,62 +1,86 @@
 # Smart Cafeteria Pre-Order & Queue Management System
-### IBM 3270 / 1980s Retro Terminal Edition
+**Unit:** Object-Oriented Programming with C++  
+**Student:** Brian Murimi Muchiri  
 
-A campus dining pre-order, queue management, and M-Pesa checkout terminal built with authentic 1980s IBM green/amber CRT phosphor aesthetics, mechanical stepper-motor audio synthesis, and a physical thermal receipt dispenser with downloadable PDF vouchers.
-
----
-
-## 🟢 Features
-
-- **Classic IBM CRT Phosphor Themes:**
-  - **P1 Phosphor (Classic IBM PC / Apple II):** `#33FF33` / `#4AFF00` warm cathode luminescence.
-  - **P31 Phosphor (Radar/Scope):** `#7FFF00` high-efficiency chartreuse.
-  - **P39 Phosphor (Long Persistence):** `#006400` / `#4ADE80` low-flicker forest green.
-  - **P3 Phosphor (Warm Amber):** `#FFB700` golden amber (DEC VT220 / Wyse style).
-  - **P12 Phosphor (Safety Orange):** `#FFA500` high-visibility amber.
-  - **IBM 3279 Color:** 4-color CRT matrix (Green, Cyan, Amber, Red).
-- **Stepped Thermal Receipt Printer:**
-  - Realistic stepped line feed keyframes matching mechanical stepper motors.
-  - 40-tooth serrated cutter tear edge.
-  - **Direct PDF Receipt Download** formatted as an 80mm thermal receipt roll with barcodes, queue ticket numbers, timestamp, itemized breakdowns, and VAT.
-  - Tear voucher animation and plain-text clipboard copy.
-- **Campus Dining Menu (KES Currency):**
-  - Swahili & Kenyan campus favorites (Chapatis & Ndengu, Swahili Beef Pilau, Ugali & Sukuma Wiki, Fried Tilapia, Chai, Dawa, and combos).
-- **Simulated Safaricom M-Pesa STK Push:**
-  - Instant STK push simulation with 4-digit PIN verification.
-  - 10-character alphanumeric transaction codes (e.g. `QFH38X92L`).
-- **Queue Simulation & Analytics:**
-  - Dynamic wait-time calculation based on kitchen load.
-  - Walk-in live queue vs. Scheduled Pre-Order pickup slots.
-  - Exportable CSV daily sales reports (`daily_sales_report.csv`).
-- **Mechanical Web Audio Synthesizer:**
-  - Zero audio assets: synthesizes authentic IBM key beeps, print head step rattle, CRT degauss, and completion chimes using the Web Audio API.
+A campus dining pre-order, queue management, and M-Pesa checkout system featuring:
+1. **Core Logic in C++17:** Complete OOP implementation showcasing the 4 pillars (Encapsulation, Inheritance, Polymorphism, Abstraction) and file-based data persistence (database).
+2. **Native ANSI Terminal TUI:** 1980s IBM 3270 / CRT phosphor theme (`#33FF33` P1 Green, `#FFB700` P3 Amber, `#FFA500` P12 Orange) with mechanical stepped thermal receipt printer simulation and cutter detach animation.
+3. **Web Terminal Interface:** React + Tailwind CRT terminal with printable / downloadable 80mm PDF receipts.
 
 ---
 
-## 🛠️ Tech Stack
+## 🏛️ C++ Object-Oriented Design & Technical Architecture
 
-- **Frontend & UI:** React 18, TypeScript, Tailwind CSS, Lucide Icons, Phosphor Icons
-- **Animation & Motion:** Motion (Framer Motion)
-- **PDF Generation:** jsPDF (80mm thermal roll format)
-- **Audio Engine:** Web Audio API synthesizer
-- **Build Tool:** Vite
+The core logic is written in modern **C++17** mapping real-world cafeteria entities to classes:
+
+### 1. Encapsulation & Security
+- `User`: Encapsulates credentials, roles (`Admin`, `Customer`), and permission checks. Customers cannot access admin analytics or inventory.
+- `Order`: Financial data (`subtotal`, `tax`, `total`, `isPaid`, `transactionCode`) is immutable outside validated transaction routines.
+- `MenuItem`: Encapsulates item pricing, preparation time, and stock decrements.
+
+### 2. Inheritance & Code Reuse
+- `User` ──► `Customer`, `Admin`
+- `MenuItem` ──► `FoodItem`, `DrinkItem`, `ComboDeal` (specialized bundle pricing)
+- `Order` ──► `PreOrder` (scheduled queue), `WalkInOrder` (live queue)
+- `PaymentMethod` ──► `CashPayment` (change calculation), `MobileMoneyPayment` (STK Push simulation)
+
+### 3. Polymorphism & Flexibility
+- `order.process()`: Executes scheduled time-slot validation for pre-orders or calculates dynamic live wait times for walk-ins without conditional branches.
+- `payment.process(amount)`: Polymorphically handles cash change calculations or Safaricom M-Pesa STK PIN validation through a unified interface.
+
+### 4. Abstraction
+- `QueueManager`: Hides complex queue wait calculations, peak hour detection, and progress bar generation.
+- `AnalyticsEngine`: Handles file parsing and statistical analysis. Client code calls `generateReport()` without knowing file parsing internals.
 
 ---
 
-## 🚀 Getting Started
+## 💾 File Persistence (Database)
 
-```bash
-# Clone the repository
-git clone https://github.com/Zianiwarhead/smart-cafeteria-pos.git
+All records persist to local file streams:
+- `cpp/data/users.txt` — Credentials and role-based access control.
+- `cpp/data/menu.txt` — Food & drink items, prep times, pricing in KES, and stock levels.
+- `cpp/data/orders.txt` — Immutable transaction log (timestamp, items, total in KES, payment method).
+- `cpp/data/receipts/` — Downloadable individual receipts (`receipt_<transaction_id>.txt`).
+- `cpp/data/daily_sales_report.csv` — Generated sales analytics for cafeteria management.
 
-# Navigate to project directory
-cd smart-cafeteria-pos
+---
 
-# Install dependencies
-npm install
+## 🟢 1980s IBM Phosphor Color Profiles
 
-# Start development server
-npm run dev
+Both the C++ TUI and the Web interface support authentic phosphor wavelengths:
+- **P1 Phosphor (Classic IBM PC / Apple II):** `#33FF33` / `#4AFF00` warm cathode luminescence.
+- **P31 Phosphor (Vibrant Radar/Scope):** `#7FFF00` high-efficiency chartreuse.
+- **P39 Phosphor (Long Persistence):** `#006400` / `#4ADE80` low-flicker forest green.
+- **P3 Phosphor (Warm Amber):** `#FFB700` golden amber (DEC VT220 / Wyse style).
+- **P12 Phosphor (Safety Orange):** `#FFA500` high-visibility amber.
+- **IBM 3279 Color:** Multi-color CRT terminal matrix (Green, Cyan, Amber, Red).
+
+---
+
+## ⚡ How to Build & Run the C++ Core
+
+### On Windows:
+```cmd
+# Double click or run:
+build.bat
+
+# Run the terminal application:
+run.bat
+# or directly:
+.\smart_cafeteria.exe
 ```
 
-Visit `http://localhost:5173` (or the port indicated in your console) to launch the terminal.
+### On Linux / macOS / MSYS2:
+```bash
+make
+./smart_cafeteria
+```
+
+---
+
+## 🌐 How to Run the Web CRT Terminal
+```bash
+npm install
+npm run dev
+```
+Open `http://localhost:5173` to interact with the web dispenser and download thermal PDF receipts.
