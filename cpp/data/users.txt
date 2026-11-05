@@ -1,7 +1,0 @@
-# Smart Cafeteria Pre-Order System - User Credentials Database
-# Format: username|password_hash_or_plain|role|full_name|phone
-brian|1234|admin|Brian Murimi (Admin)|0722145921
-student|1234|customer|Campus Student|0711223344
-amina|pass2026|customer|Amina Hassan|0722889023
-john|pass2026|customer|John Kamau|0733556677
-guest|guest|customer|Walk-In Guest|0700000000
