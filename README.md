@@ -63,7 +63,8 @@ export CAFETERIA_ADMIN_PIN='choose-a-private-pin'
 
 ## Local data files
 
-- `cpp/data/menu.txt` — Menu, descriptions, prices, and inventory counts.
+- `cpp/data/menu.txt` — Menu, descriptions, prices, and starting inventory.
+- `cpp/data/inventory.txt` — Persistent local stock counts (created at runtime and ignored by Git).
 - `cpp/data/orders.txt` — Local order history.
 - `cpp/data/receipts/` — Text and PDF receipts generated at runtime.
 - `cpp/data/daily_sales_report.csv` — Admin export.
