@@ -94,46 +94,41 @@ public:
             }
         }
         file.close();
+
+        // Overlay locally persisted inventory without editing the tracked menu catalog.
+        std::ifstream inventory(dataDir + "/inventory.txt");
+        if (!inventory.is_open()) {
+            inventory.clear();
+            inventory.open("cpp/data/inventory.txt");
+        }
+        std::string inventoryLine;
+        while (std::getline(inventory, inventoryLine)) {
+            auto stockParts = split(inventoryLine, '|');
+            if (stockParts.size() != 2) continue;
+            int savedStock = std::stoi(stockParts[1]);
+            for (const auto& item : menu) {
+                if (item && item->getCode() == stockParts[0]) {
+                    int currentStock = item->getStock();
+                    if (savedStock < currentStock) item->decrementStock(currentStock - savedStock);
+                    else if (savedStock > currentStock) item->restock(savedStock - currentStock);
+                    break;
+                }
+            }
+        }
         return menu;
     }
 
-    // Persist current stock levels while keeping the menu's other fields intact.
+    // Persist current stock levels in a local data file excluded from Git.
     bool saveMenuStock(const std::vector<std::shared_ptr<MenuItem>>& menu) {
-        std::string path = dataDir + "/menu.txt";
-        std::ifstream input(path);
-        if (!input.is_open()) {
-            input.clear();
-            path = "cpp/data/menu.txt";
-            input.open(path);
+        std::ofstream output(dataDir + "/inventory.txt", std::ios::trunc);
+        if (!output.is_open()) {
+            output.clear();
+            output.open("cpp/data/inventory.txt", std::ios::trunc);
         }
-        if (!input.is_open()) return false;
-
-        std::vector<std::string> lines;
-        std::string line;
-        while (std::getline(input, line)) {
-            if (!line.empty() && line[0] != '#') {
-                auto parts = split(line, '|');
-                if (parts.size() >= 8) {
-                    for (const auto& item : menu) {
-                        if (item && parts[1] == item->getCode()) {
-                            parts[6] = std::to_string(item->getStock());
-                            line.clear();
-                            for (size_t i = 0; i < parts.size(); ++i) {
-                                if (i) line += '|';
-                                line += parts[i];
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-            lines.push_back(line);
-        }
-        input.close();
-
-        std::ofstream output(path, std::ios::trunc);
         if (!output.is_open()) return false;
-        for (const auto& savedLine : lines) output << savedLine << "\\n";
+        for (const auto& item : menu) {
+            if (item) output << item->getCode() << "|" << item->getStock() << "\\n";
+        }
         return output.good();
     }
 
