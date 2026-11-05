@@ -96,6 +96,45 @@ public:
         return menu;
     }
 
+    // Persist current stock levels while keeping the menu's other fields intact.
+    bool saveMenuStock(const std::vector<std::shared_ptr<MenuItem>>& menu) {
+        std::string path = dataDir + "/menu.txt";
+        std::ifstream input(path);
+        if (!input.is_open()) {
+            path = "cpp/data/menu.txt";
+            input.open(path);
+        }
+        if (!input.is_open()) return false;
+
+        std::vector<std::string> lines;
+        std::string line;
+        while (std::getline(input, line)) {
+            if (!line.empty() && line[0] != '#') {
+                auto parts = split(line, '|');
+                if (parts.size() >= 8) {
+                    for (const auto& item : menu) {
+                        if (item && parts[1] == item->getCode()) {
+                            parts[6] = std::to_string(item->getStock());
+                            line.clear();
+                            for (size_t i = 0; i < parts.size(); ++i) {
+                                if (i) line += '|';
+                                line += parts[i];
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            lines.push_back(line);
+        }
+        input.close();
+
+        std::ofstream output(path, std::ios::trunc);
+        if (!output.is_open()) return false;
+        for (const auto& savedLine : lines) output << savedLine << "\\n";
+        return output.good();
+    }
+
     // 3. Append to immutable transaction log orders.txt
     bool appendOrderLog(const Order& order) {
         std::string path = dataDir + "/orders.txt";
