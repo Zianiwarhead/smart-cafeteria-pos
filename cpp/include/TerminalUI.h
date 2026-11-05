@@ -116,21 +116,25 @@ public:
 
             if (!item->getDescription().empty()) {
                 const std::string label = item->getCategory() == ItemCategory::DRINK ? "Ingredients: " : "Details: ";
-                const std::string indent = "          ";
+                const std::string continuationIndent = "          ";
                 std::istringstream words(item->getDescription());
                 std::string word;
                 std::string line = label;
+                bool firstLine = true;
                 while (words >> word) {
-                    if (line.size() + word.size() + 1 > 72 && line != label) {
-                        std::cout << theme.dimCode() << "       └─ " << line << theme.reset() << theme.fgCode() << "\n";
-                        line = indent;
+                    const size_t maxLineLength = firstLine ? 70 : 68;
+                    if (!line.empty() && line.size() + 1 + word.size() > maxLineLength) {
+                        std::cout << theme.dimCode() << (firstLine ? "       └─ " : continuationIndent)
+                                  << line << theme.reset() << theme.fgCode() << "\n";
+                        line.clear();
+                        firstLine = false;
                     }
-                    if (line.size() > indent.size()) line += " ";
+                    if (!line.empty()) line += " ";
                     line += word;
                 }
                 if (!line.empty()) {
-                    std::cout << theme.dimCode() << (line == label ? "       └─ " : "          ") << line
-                              << theme.reset() << theme.fgCode() << "\n";
+                    std::cout << theme.dimCode() << (firstLine ? "       └─ " : continuationIndent)
+                              << line << theme.reset() << theme.fgCode() << "\n";
                 }
             }
         }
