@@ -5,6 +5,8 @@
 #include <random>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
+#include <cctype>
 
 struct PaymentResult {
     bool success;
@@ -92,17 +94,21 @@ public:
         res.changeGiven = 0.0;
 
         // Validation check for Safaricom Kenyan mobile format (07... or 01...)
-        if (phoneNumber.length() < 10) {
+        const bool phoneDigitsOnly = !phoneNumber.empty() && std::all_of(phoneNumber.begin(), phoneNumber.end(),
+            [](unsigned char c) { return std::isdigit(c) != 0; });
+        if (phoneNumber.length() < 10 || phoneNumber.length() > 13 || !phoneDigitsOnly) {
             res.success = false;
-            res.message = "Invalid phone number format! Requires Safaricom 10-digit number.";
+            res.message = "Invalid phone number format! Enter 10 to 13 digits.";
             res.transactionCode = "ERR-PHONE";
             return res;
         }
 
         // STK Push PIN validation simulation
-        if (enteredPin.length() != 4) {
+        const bool pinDigitsOnly = enteredPin.size() == 4 && std::all_of(enteredPin.begin(), enteredPin.end(),
+            [](unsigned char c) { return std::isdigit(c) != 0; });
+        if (!pinDigitsOnly) {
             res.success = false;
-            res.message = "M-Pesa STK push rejected: PIN must be 4 digits.";
+            res.message = "Demo payment rejected: PIN must contain exactly 4 digits.";
             res.transactionCode = "ERR-PIN";
             return res;
         }
