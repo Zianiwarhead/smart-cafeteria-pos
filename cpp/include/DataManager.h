@@ -127,7 +127,7 @@ public:
         }
         if (!output.is_open()) return false;
         for (const auto& item : menu) {
-            if (item) output << item->getCode() << "|" << item->getStock() << "\\n";
+            if (item) output << item->getCode() << "|" << item->getStock() << "\n";
         }
         return output.good();
     }
