@@ -101,6 +101,7 @@ public:
         std::string path = dataDir + "/menu.txt";
         std::ifstream input(path);
         if (!input.is_open()) {
+            input.clear();
             path = "cpp/data/menu.txt";
             input.open(path);
         }
@@ -187,10 +188,11 @@ public:
             dir = "cpp/data/receipts";
             pdfPath = dir + "/receipt_" + order.getTransactionCode() + ".pdf";
             txtPath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
-            PdfReceiptGenerator::generatePdf(order, pdfPath);
+            pdfOk = PdfReceiptGenerator::generatePdf(order, pdfPath);
         }
+        if (!pdfOk) return false;
 
-        // Also generate text receipt for legacy terminal viewer
+        // Also generate text receipt for terminal viewing
         std::ofstream file(txtPath);
         if (!file.is_open()) return false;
 
@@ -201,7 +203,7 @@ public:
         file << "==========================================\n";
         file << "DATE: " << order.getTimestamp() << "\n";
         file << "ORDER REF: " << order.getOrderId() << "\n";
-        file << "M-PESA REF: " << order.getTransactionCode() << "\n";
+        file << "PAYMENT REF: " << order.getTransactionCode() << "\n";
         file << "CUSTOMER: " << order.getCustomerName() << " (" << order.getPhone() << ")\n";
         file << "DISPATCH: " << (order.getOrderType() == OrderType::WALKIN ? "WALKIN" : "PREORDER") << "\n";
         file << "QUEUE CALL: TICKET #" << std::setw(3) << std::setfill('0') << order.getQueueTicket() << "\n";
