@@ -30,6 +30,7 @@ Thumbs.db
 
 # Runtime cafeteria data may contain customer details
 cpp/data/orders.txt
+cpp/data/inventory.txt
 cpp/data/daily_sales_report.csv
 cpp/data/receipts/*
 !cpp/data/receipts/.gitkeep
