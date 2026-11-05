@@ -7,6 +7,8 @@
 #include <memory>
 #include <thread>
 #include <chrono>
+#include <cstdlib>
+#include <sstream>
 #include "PhosphorTheme.h"
 #include "MenuItem.h"
 #include "Order.h"
@@ -29,7 +31,6 @@ private:
     QueueManager queueManager;
     AnalyticsEngine analyticsEngine;
     std::vector<std::shared_ptr<MenuItem>> menu;
-    std::vector<std::shared_ptr<User>> users;
     std::shared_ptr<User> currentUser;
 
     void enableVirtualTerminal() {
@@ -53,10 +54,6 @@ public:
           analyticsEngine("cpp/data/orders.txt") {
         enableVirtualTerminal();
         menu = dataManager.loadMenu();
-        users = dataManager.loadUsers();
-        if (!users.empty()) {
-            currentUser = users[0]; // Default admin Brian Murimi
-        }
     }
 
     void cyclePhosphorTheme() {
@@ -117,9 +114,24 @@ public:
                       << "KES " << std::right << std::setw(6) << std::fixed << std::setprecision(2) << item->calculateFinalPrice()
                       << "\n";
 
-            // Full descriptive details for combos, meals, snacks and drinks (matching web app)
             if (!item->getDescription().empty()) {
-                std::cout << theme.dimCode() << "       └─ " << item->getDescription() << theme.reset() << theme.fgCode() << "\n";
+                const std::string label = item->getCategory() == ItemCategory::DRINK ? "Ingredients: " : "Details: ";
+                const std::string indent = "          ";
+                std::istringstream words(item->getDescription());
+                std::string word;
+                std::string line = label;
+                while (words >> word) {
+                    if (line.size() + word.size() + 1 > 72 && line != label) {
+                        std::cout << theme.dimCode() << "       └─ " << line << theme.reset() << theme.fgCode() << "\n";
+                        line = indent;
+                    }
+                    if (line.size() > indent.size()) line += " ";
+                    line += word;
+                }
+                if (!line.empty()) {
+                    std::cout << theme.dimCode() << (line == label ? "       └─ " : "          ") << line
+                              << theme.reset() << theme.fgCode() << "\n";
+                }
             }
         }
 
@@ -144,7 +156,7 @@ public:
             "      +------------------------------------------------+",
             std::string("      | DATE: ") + order.getTimestamp() + "              |",
             std::string("      | ORDER REF: ") + order.getOrderId() + "                         |",
-            std::string("      | M-PESA CODE: ") + order.getTransactionCode() + "                      |",
+            std::string("      | PAYMENT REF: ") + order.getTransactionCode() + "                      |",
             std::string("      | CUSTOMER: ") + order.getCustomerName() + "                    |",
             std::string("      | DISPATCH: ") + dispatchStr + " |",
             std::string("      | TICKET NUMBER: #") + std::to_string(order.getQueueTicket()) + "                             |",
@@ -191,14 +203,20 @@ public:
         std::cout << "\n" << theme.highlightCode() << "--- INITIATING " 
                   << (type == OrderType::WALKIN ? "WALK-IN" : "PRE-ORDER") << " ORDER ---\n" << theme.fgCode();
 
-        std::cout << "Enter Customer / Student Name [Brian Murimi]: ";
+        std::cout << "Enter Customer / Student Name: ";
         std::cin.ignore();
         std::getline(std::cin, name);
-        if (name.empty()) name = "Brian Murimi";
+        if (name.empty()) {
+            std::cout << "Name is required. Order cancelled.\n";
+            return;
+        }
 
-        std::cout << "Enter Safaricom M-Pesa Phone Number [0722145921]: ";
+        std::cout << "Enter contact phone number (10-13 digits): ";
         std::getline(std::cin, phone);
-        if (phone.empty()) phone = "0722145921";
+        if (phone.empty()) {
+            std::cout << "Phone number is required. Order cancelled.\n";
+            return;
+        }
 
         if (type == OrderType::PREORDER) {
             std::cout << "Select Scheduled Pickup Slot:\n";
@@ -289,10 +307,9 @@ public:
             std::this_thread::sleep_for(std::chrono::milliseconds(800));
             std::cout << ">> STK PROMPT RECEIVED ON MOBILE PHONE:\n";
             std::cout << "   'Do you want to pay KES " << newOrder->getTotal() << " to SMART CAFETERIA?'\n";
-            std::cout << "Enter M-Pesa 4-Digit PIN [1234]: ";
+            std::cout << "Enter the 4-digit demo PIN (simulated payment only): ";
             std::string pin;
             std::cin >> pin;
-            if (pin.empty()) pin = "1234";
             paymentMethod = std::make_unique<MobileMoneyPayment>(phone, pin);
         }
 
@@ -301,9 +318,16 @@ public:
         if (success) {
             std::cout << theme.highlightCode() << "\n[!] PAYMENT CONFIRMED! Transaction: " << newOrder->getTransactionCode() << theme.fgCode() << "\n";
             
-            // Persist to database files
-            dataManager.appendOrderLog(*newOrder);
-            dataManager.saveReceiptFile(*newOrder);
+            // Persist the order, receipt, and reduced inventory to local files.
+            if (!dataManager.appendOrderLog(*newOrder)) {
+                std::cout << "[!] Could not write the order log. Check cpp/data permissions.\n";
+            }
+            if (!dataManager.saveReceiptFile(*newOrder)) {
+                std::cout << "[!] Could not write the receipt files. Check cpp/data/receipts permissions.\n";
+            }
+            if (!dataManager.saveMenuStock(menu)) {
+                std::cout << "[!] Could not save inventory. Stock will reset on restart.\n";
+            }
             queueManager.advanceQueue();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(800));
@@ -312,6 +336,25 @@ public:
             std::cout << "\n[X] PAYMENT FAILED! Order cancelled.\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         }
+    }
+
+    bool authenticateAdmin() {
+        const char* configuredPin = std::getenv("CAFETERIA_ADMIN_PIN");
+        if (!configuredPin || configuredPin[0] == 0) {
+            std::cout << "\nAdmin analytics are locked. Set CAFETERIA_ADMIN_PIN in your terminal before launching.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1800));
+            return false;
+        }
+        std::string enteredPin;
+        std::cout << "Admin PIN: ";
+        std::cin >> enteredPin;
+        if (enteredPin != configuredPin) {
+            std::cout << "Incorrect admin PIN.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+            return false;
+        }
+        currentUser = std::make_shared<Admin>("admin", "", "Cafeteria Administrator", "");
+        return true;
     }
 
     void handleAdminPanel() {
@@ -351,6 +394,42 @@ public:
             std::cout << "Press ENTER to continue...";
             std::cin.ignore();
             std::cin.get();
+        } else if (c == '2') {
+            std::cout << "\nCurrent inventory:\n";
+            for (const auto& item : menu) {
+                std::cout << " " << item->getCode() << "  " << item->getName()
+                          << " (" << item->getStock() << " in stock)\n";
+            }
+            std::string code;
+            int quantity = 0;
+            std::cout << "Item code to restock (or B to cancel): ";
+            std::cin >> code;
+            if (code == "B" || code == "b") return;
+            std::cout << "Quantity to add: ";
+            if (!(std::cin >> quantity) || quantity <= 0) {
+                std::cin.clear();
+                std::cin.ignore(10000, '\n');
+                std::cout << "Enter a positive whole number.\n";
+                return;
+            }
+            bool found = false;
+            for (const auto& item : menu) {
+                if (item->getCode() == code) {
+                    item->restock(quantity);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                std::cout << "Item code not found.\n";
+            } else if (!dataManager.saveMenuStock(menu)) {
+                std::cout << "Could not save inventory to cpp/data/menu.txt.\n";
+            } else {
+                std::cout << "Inventory saved.\n";
+            }
+            std::cout << "Press ENTER to continue...";
+            std::cin.ignore();
+            std::cin.get();
         }
     }
 
@@ -368,7 +447,10 @@ public:
             } else if (choice == '2') {
                 handleOrderFlow(OrderType::PREORDER);
             } else if (choice == 'a' || choice == 'A') {
-                handleAdminPanel();
+                if (authenticateAdmin()) {
+                    handleAdminPanel();
+                    currentUser.reset();
+                }
             } else if (choice == 'q' || choice == 'Q') {
                 running = false;
             }
