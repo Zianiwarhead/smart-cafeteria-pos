@@ -179,7 +179,7 @@ public:
 
     // 4. Save downloadable individual receipt file in receipts/ (PDF & TXT)
     bool saveReceiptFile(const Order& order) {
-        const std::string dir = dataDir + "/receipts";
+        std::string dir = dataDir + "/receipts";
         std::error_code directoryError;
         std::filesystem::create_directories(dir, directoryError);
         if (directoryError) return false;
