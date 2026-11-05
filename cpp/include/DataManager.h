@@ -6,6 +6,7 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <iostream>
 #include "User.h"
 #include "MenuItem.h"
@@ -178,7 +179,10 @@ public:
 
     // 4. Save downloadable individual receipt file in receipts/ (PDF & TXT)
     bool saveReceiptFile(const Order& order) {
-        std::string dir = dataDir + "/receipts";
+        const std::string dir = dataDir + "/receipts";
+        std::error_code directoryError;
+        std::filesystem::create_directories(dir, directoryError);
+        if (directoryError) return false;
         std::string pdfPath = dir + "/receipt_" + order.getTransactionCode() + ".pdf";
         std::string txtPath = dir + "/receipt_" + order.getTransactionCode() + ".txt";
 
