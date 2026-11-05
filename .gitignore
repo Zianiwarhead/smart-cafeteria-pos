@@ -34,3 +34,4 @@ cpp/data/inventory.txt
 cpp/data/daily_sales_report.csv
 cpp/data/receipts/*
 !cpp/data/receipts/.gitkeep
+cpp/data/users.txt
