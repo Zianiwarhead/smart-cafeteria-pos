@@ -65,7 +65,7 @@ public:
         curY -= 16.0;
 
         // 2. Queue Call Ticket Box (filled black rect, white text)
-        double boxY = curY - 3.0;
+        double boxY = curY - 11.0;
         stream << "q\n";
         stream << "0.1 0.1 0.1 rg\n";
         stream << "12 " << std::fixed << std::setprecision(2) << boxY << " " << (pageWidth - 24) << " 20 re f\n";
@@ -78,7 +78,7 @@ public:
         drawCenteredText("F2", 9.5, boxY + 6.0, ticketText.str());
         stream << "Q\n";
 
-        curY -= 30.0;
+        curY -= 38.0;
         drawDashedLine(curY + 6.0);
 
         // 3. Metadata
@@ -87,7 +87,8 @@ public:
         curY -= 12.0;
 
         drawText("F1", 7.5, 12, curY, "ORDER REF: " + order.getOrderId());
-        drawText("F2", 7.5, 115, curY, "M-PESA: " + order.getTransactionCode());
+        const std::string paymentLabel = order.getPaymentMethod() == "M-Pesa" ? "M-PESA: " : "CASH REF: ";
+        drawText("F2", 7.5, 115, curY, paymentLabel + order.getTransactionCode());
         curY -= 12.0;
 
         drawText("F1", 7.5, 12, curY, "STUDENT:   " + order.getCustomerName());
