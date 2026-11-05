@@ -2,7 +2,7 @@
 
 This project is primarily a local C++17 terminal application for cafeteria orders, queue tickets, receipts, and inventory. It uses a green phosphor terminal theme and prints item details and drink ingredients in the menu.
 
-The React interface in the repository is a visual prototype. The supported cafeteria workflow is the C++ terminal app.
+The application runs entirely in the terminal; the cafeteria workflow and core logic are written in C++17.
 
 ## Build and run
 
